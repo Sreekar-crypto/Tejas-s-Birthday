@@ -1,6 +1,9 @@
 extends CharacterBody2D
 
+class_name enemy_eye
+
 @export var movement_speed : float = 130.0
+@export var player_target : PackedScene
 var movement_direction : Vector2
 var movement : bool = true
 var character_direction : Vector2
@@ -10,14 +13,33 @@ var found_player : bool = false
 var target
 var last_position : Vector2
 var target_direction : Vector2
-signal velocity_eye(velocity_value)
 @onready var detection: Sprite2D = %detection
 @onready var sprite: AnimatedSprite2D = %sprite
+
 
 enum direction {up, down, left, right, non}
 enum move {yes, no}
 var default_direction : direction = direction.non
 var default_move : move = move.no
+
+func matching_enum() -> void:
+	match default_move:
+		move.yes:
+			movement = true
+		move.no:
+			movement = false
+	match default_direction:
+		direction.up:
+			character_direction = Vector2.UP
+		direction.down:
+			character_direction = Vector2.DOWN
+		direction.left:
+			character_direction = Vector2.LEFT
+		direction.right:
+			character_direction = Vector2.RIGHT
+		direction.non:
+			character_direction = Vector2.ZERO
+
 
 func movement_or_not() -> void:
 	while true:
@@ -27,36 +49,17 @@ func movement_or_not() -> void:
 		await get_tree().create_timer(time).timeout
 
 func movement_axis() -> void:
+	matching_enum()
 	while true:
 		var timed_movement : Array = [1, 2, 3]
 		var time = timed_movement.pick_random()
 		default_move = move.values().pick_random()
 		default_direction = direction.values().pick_random()
-		match default_direction:
-			direction.up:
-				character_direction = Vector2.UP
-			direction.down:
-				character_direction = Vector2.DOWN
-			direction.left:
-				character_direction = Vector2.LEFT
-			direction.right:
-				character_direction = Vector2.RIGHT
-			direction.non:
-				character_direction = Vector2.ZERO
 		movement = default_move
 		velocity_movement = character_direction * movement_speed
 		await get_tree().create_timer(time).timeout
-
-func _ready():
-	movement_axis.call_deferred()
-	movement_or_not.call_deferred()
-	match default_move:
-		move.yes:
-			movement = true
-		move.no:
-			movement = false
-
-func _physics_process(delta: float) -> void:
+		
+func movement_calculation() -> void:
 	if (found_player == true and target):
 		target_direction = (target.global_position - global_position).normalized()
 		character_direction = vector_to_cardinal(target_direction)
@@ -76,8 +79,7 @@ func _physics_process(delta: float) -> void:
 	elif (movement == false and found_player == false):
 		velocity = Vector2.ZERO
 		
-	velocity_eye.emit(velocity)
-			
+func animation_handler() -> void:
 	if velocity == Vector2.ZERO:
 		if current_direction == Vector2.UP:
 			if sprite.animation != "idle_up": sprite.play("idle_up")
@@ -96,6 +98,15 @@ func _physics_process(delta: float) -> void:
 			if sprite.animation != "walk_right": sprite.play("walk_right")
 		elif current_direction == Vector2.LEFT:
 			if sprite.animation != "walk_left": sprite.play("walk_left")
+	
+
+func _ready():
+	movement_axis.call_deferred()
+	movement_or_not.call_deferred()
+	
+func _physics_process(delta: float) -> void:
+	movement_calculation()
+	animation_handler()
 	move_and_collide(velocity * delta)
 	
 func vector_to_cardinal(dir: Vector2) -> Vector2:
@@ -121,7 +132,3 @@ func _on_enemy_detection_body_exited(body: Node2D) -> void:
 	found_player = false
 	target = null
 	detection.visible = false
-
-
-func _on_velocity_eye(velocity: Variant) -> void:
-	emit_signal(velocity)

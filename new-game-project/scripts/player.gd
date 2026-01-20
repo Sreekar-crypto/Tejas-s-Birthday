@@ -1,5 +1,6 @@
 extends CharacterBody2D
 
+class_name player
 
 @export var movement_speed : float = 130.0
 var character_direction : Vector2
@@ -8,22 +9,23 @@ var character_direction : Vector2
 enum movement_direction {up, down, left, right, nun}
 var default_direction := movement_direction.nun
 
-func _physics_process(delta: float) -> void:
+func encode_direction() -> void:
 	character_direction = Input.get_vector("move_left_td", "move_right_td", "move_up_td", "move_down_td", 0.2)
 	if character_direction.x > 0: default_direction = movement_direction.right
 	elif character_direction.x < 0: default_direction= movement_direction.left
 	
 	if character_direction.y < 0: default_direction = movement_direction.up
 	elif character_direction.y > 0: default_direction = movement_direction.down
-	
-	
+
+func velocity_calculator() -> void:
 	if character_direction and not Input.is_action_pressed("shift"):
 		velocity = character_direction * movement_speed
 	elif character_direction and Input.is_action_pressed("shift"):
 		velocity = character_direction * (movement_speed * 2)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, movement_speed-100.0)
-		
+
+func animation_handler_player() -> void:
 	if character_direction != Vector2.ZERO:
 		if default_direction == movement_direction.up:
 			if sprite.animation != "walk_up": sprite.animation = "walk_up"
@@ -42,4 +44,9 @@ func _physics_process(delta: float) -> void:
 			if sprite.animation != "idle_right": sprite.animation = "idle_right"
 		elif default_direction == movement_direction.left:
 			if sprite.animation != "idle_left": sprite.animation = "idle_left"
+
+func _physics_process(delta: float) -> void:
+	encode_direction()
+	velocity_calculator()
+	animation_handler_player()
 	move_and_slide()
