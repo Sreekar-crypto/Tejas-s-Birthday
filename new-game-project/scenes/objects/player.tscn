@@ -211,6 +211,6 @@ shape = SubResource("RectangleShape2D_jej6c")
 
 [node name="Camera2D" type="Camera2D" parent="." node_paths=PackedStringArray("player")]
 unique_name_in_owner = true
-zoom = Vector2(4, 4)
+zoom = Vector2(2, 2)
 script = ExtResource("3_h5uus")
 player = NodePath("..")

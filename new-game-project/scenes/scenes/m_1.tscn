@@ -1,11 +1,22 @@
-[gd_scene load_steps=3 format=3 uid="uid://c20ehly03xr1s"]
+[gd_scene load_steps=5 format=3 uid="uid://c20ehly03xr1s"]
 
-[ext_resource type="Texture2D" uid="uid://bro53kfmk04qh" path="res://sprites/background/bg.png" id="1_avr7r"]
+[ext_resource type="Texture2D" uid="uid://b8kggibsnsvi6" path="res://sprites/misc/Sprite-0002.png" id="1_0ayuh"]
+[ext_resource type="Texture2D" uid="uid://dn3f6vj6u5oqm" path="res://sprites/tileset/TilesetField.png" id="1_avr7r"]
 [ext_resource type="PackedScene" uid="uid://be8qbmt0fe144" path="res://scenes/objects/player.tscn" id="1_fmj00"]
+[ext_resource type="PackedScene" uid="uid://dw3w65ok3v27" path="res://scenes/objects/eye.tscn" id="2_avr7r"]
 
 [node name="M1" type="Node2D"]
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="spritesheet" type="Sprite2D" parent="."]
+position = Vector2(26, 13)
+texture = ExtResource("1_0ayuh")
+
+[node name="spritesheet2" type="Sprite2D" parent="."]
+position = Vector2(105, 16)
 texture = ExtResource("1_avr7r")
 
+[node name="eye" parent="." instance=ExtResource("2_avr7r")]
+position = Vector2(93, 32)
+
 [node name="player" parent="." instance=ExtResource("1_fmj00")]
+movement_speed = null
