@@ -9,18 +9,17 @@ var health : float = 100.0
 
 var character_direction : Vector2
 var last_direction : Vector2
-var self_global_position_at_start : Vector2
-var live_global_position_not_returning : Vector2
 
 var direction_array : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
-var idle_walk_behaviour_array : Array = [1,2,3]
-var idle_behaviour_array : Array = [1,2,3]
-var wander_array : Array =  [1,2,3]
+var idle_walk_behaviour_array : Array = [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
+var idle_behaviour_array : Array = [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
+var wander_array : Array =  [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
 
 var univeral_timer : float = 0
 var roll : int
 
 var target
+var target_found : bool = false
 
 @onready var sprite: AnimatedSprite2D = %sprite
 @onready var detection: Sprite2D = %detection
@@ -73,46 +72,53 @@ func wandering(_delta : float) -> void:
 			
 func chase() -> void:
 	detection.visible = true
-	velocity = velocity.move_toward(target.global_position, movement_speed)
-		
+	var dir = (target.position - global_position).normalized()
+	if (abs(dir.x) > abs(dir.y)):
+		if (dir.x > 0):
+			character_direction = Vector2.RIGHT
+		elif (dir.x < 0):
+			character_direction = Vector2.LEFT
+	else:
+		if (dir.y > 0):
+			character_direction = Vector2.DOWN
+		elif (dir.y < 0):
+			character_direction = Vector2.UP
+	
+func do_next(_delta : float) -> void:
+	roll = [1,2,3].pick_random()
+	if (roll == 1):
+		idle_behaviour(_delta)
+		print("IDLING")
+	elif (roll == 3):
+		wander_behaviour(_delta)
+		print("WANDERING")
 			
 func enum_matching(_delta : float) -> void:
-	match state:
-		states.IDLE:
-			idling(_delta)
-			print("IDLE")
-		states.WANDER:
-			wandering(_delta)
-			print("WANDER")
-		states.CHASE:
-			chase()
-			print("CHASE")
-			
-func do_next(_delta : float) -> void:
-	if (state == states.IDLE or state == states.WANDER):
-		roll = [1,2,3].pick_random()
-		if (roll == 1):
-			idle_behaviour(_delta)
-		elif (roll == 3):
-			wander_behaviour(_delta)
-	elif (state == states.CHASE):
-		chase()
-	
+	if (target_found == false):
+		match state:
+			states.IDLE:
+				idling(_delta)
+			states.WANDER:
+				wandering(_delta)
+				
+	elif (target_found == true):
+		match state:
+			states.CHASE:
+				chase()
+		
 		
 func velocity_match() -> void:
-	if ((state == states.IDLE or state == states.WANDER) and roll != 2):
-		velocity = character_direction * movement_speed
-	elif ((state == states.IDLE or state == states.WANDER) and roll == 2):
-		velocity = velocity.move_toward(self_global_position_at_start, movement_speed)
+	velocity = character_direction * movement_speed
 		
 func _on_enemy_detection_body_entered(body: Node2D) -> void:
 	if (body.name == "player"):
 		state = states.CHASE
 		target = body
+		target_found = true
 	
 func _on_enemy_detection_body_exited(body: Node2D) -> void:
 	state = states.IDLE
-	
+	target_found = false
 			
 func animation_handler() -> void:
 	if (velocity == Vector2.ZERO):
@@ -146,12 +152,11 @@ func initializer() -> void:
 	question.visible = false
 
 func _ready():
-	self_global_position_at_start = self.global_position
 	initializer()
 	
 func _physics_process(delta: float) -> void:
-	live_global_position_not_returning = self.global_position
 	enum_matching(delta)
 	velocity_match()
+	print(character_direction)
 	animation_handler()
 	move_and_collide(velocity * delta)
