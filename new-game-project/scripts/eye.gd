@@ -5,25 +5,36 @@ class_name enemy_eye
 @export var movement_speed : float
 @export var player : PackedScene
 
+signal touched
+
 var health : float = 100.0
 
 var character_direction : Vector2
 var last_direction : Vector2
+var last_direction_to_player : Vector2
+var global_position_at_start : Vector2
+var live_global_position : Vector2
+var dir : Vector2
 
 var direction_array : Array = [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]
 var idle_walk_behaviour_array : Array = [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
 var idle_behaviour_array : Array = [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
 var wander_array : Array =  [0.05,0.15,1.25,2.5,3.75,4.0,3.25,2.5,7.75,8.05,0.15]
-var finding_behaviour_array : Array = [4,5,6]
+var finding_behaviour_array : Array = [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
 var finding_array : Array = [0.05,0.15,0.25,0.5,0.75,1.0,1.25,1.5,1.75,0.05,0.15]
+var finding_direction = [Vector2.UP, Vector2.DOWN, Vector2.RIGHT, Vector2.LEFT]
 
 
 var univeral_timer : float = 0
 var finding_direction_change_timer : float = 0
 var roll : int
+var steps : int = 0
 
 var target
+
 var target_found : bool = false
+var running : bool = true
+
 
 @onready var sprite: AnimatedSprite2D = %sprite
 @onready var detection: Sprite2D = %detection
@@ -76,11 +87,9 @@ func wandering(_delta : float) -> void:
 		univeral_timer -= _delta
 		if (univeral_timer <= 0):
 			do_next(_delta)
+
 			
-func chase() -> void:
-	detection.visible = true
-	question.visible = false
-	var dir = (target.position - global_position).normalized()
+func movement_mechanics(dir : Vector2) -> void:
 	if (dir.x > 0.3826 and dir.y < -0.3826):
 		character_direction = (Vector2.UP + Vector2.RIGHT).normalized()
 	elif (dir.x < -0.3826 and dir.y > 0.3826):
@@ -99,30 +108,48 @@ func chase() -> void:
 			character_direction = Vector2.DOWN
 		elif (dir.y < 0):
 			character_direction = Vector2.UP
+			
+func chase() -> void:
+	detection.visible = true
+	question.visible = false
+	dir = (target.position - global_position).normalized()
+	movement_mechanics(dir)
+	last_direction = character_direction
 	
 		
 func do_next(_delta : float) -> void:
 	roll = [1,2,3].pick_random()
 	if (roll == 1):
 		idle_behaviour(_delta)
-		print("IDLING")
 	elif (roll == 3):
 		wander_behaviour(_delta)
-		print("WANDERING")
 		
-func finding_player_behaviour(_delta : float) -> void:
+func finding_player_behaviour() -> void:
+	finding_direction.erase(character_direction)
 	if (state == states.FINDING):
-		var direction_change_array = [Vector2.UP, Vector2.DOWN, Vector2.RIGHT, Vector2.LEFT]
+		if (steps <= 2):
+			character_direction = last_direction_to_player
+			steps += 1
+		detection.visible = false
 		question.visible = true
 		finding_direction_change_timer = finding_array.pick_random()
 		univeral_timer = finding_behaviour_array.pick_random()
-		character_direction = direction_change_array
+		if (finding_direction.is_empty()):
+			state = states.IDLE
+		else:
+			character_direction = finding_direction.pick_random()
 		
+func managing_direction_change(_delta : float) -> void:
+	if (state == states.FINDING):
+		finding_direction_change_timer -= _delta
+		if (finding_direction_change_timer <= 0):
+			finding_player_behaviour()
+	
 func finding_player(_delta : float) -> void:
 	if (state == states.FINDING):
 		univeral_timer -= _delta
 		if (univeral_timer <= 0):
-			do_next(_delta)
+			managing_direction_change(_delta)
 			
 func enum_matching(_delta : float) -> void:
 	if (target_found == false):
@@ -139,18 +166,19 @@ func enum_matching(_delta : float) -> void:
 			states.CHASE:
 				chase()
 		
-func velocity_match() -> void:
-	velocity = character_direction * movement_speed
-		
 func _on_enemy_detection_body_entered(body: Node2D) -> void:
 	if (body.name == "player"):
+		target_found = true
 		state = states.CHASE
 		target = body
-		target_found = true
 	
 func _on_enemy_detection_body_exited(body: Node2D) -> void:
-	state = states.FINDING
 	target_found = false
+	state = states.FINDING
+	last_direction_to_player = character_direction
+
+func velocity_match() -> void:
+	velocity = character_direction * movement_speed
 			
 func animation_handler() -> void:
 	if (velocity == Vector2.ZERO):
@@ -182,13 +210,14 @@ func initializer() -> void:
 	idle_state = idle_states.IDLING
 	detection.visible = false
 	question.visible = false
+	global_position_at_start = global_position
 
 func _ready():
 	initializer()
 	
 func _physics_process(delta: float) -> void:
+	live_global_position = global_position
 	enum_matching(delta)
 	velocity_match()
-	print(character_direction)
 	animation_handler()
 	move_and_collide(velocity * delta)

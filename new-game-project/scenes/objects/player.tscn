@@ -202,7 +202,7 @@ texture = ExtResource("2_54rde")
 unique_name_in_owner = true
 position = Vector2(-1, -8)
 sprite_frames = SubResource("SpriteFrames_3v2ag")
-animation = &"idle_down"
+animation = &"walk_down"
 autoplay = "idle_down"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
