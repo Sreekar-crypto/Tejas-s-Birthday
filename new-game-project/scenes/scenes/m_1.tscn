@@ -19,4 +19,5 @@ texture = ExtResource("1_avr7r")
 position = Vector2(93, 32)
 
 [node name="player" parent="." instance=ExtResource("1_fmj00")]
-movement_speed = null
+
+[connection signal="touched" from="eye" to="player" method="_on_eye_touched"]

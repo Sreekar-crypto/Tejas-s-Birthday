@@ -40,7 +40,7 @@ var running : bool = true
 @onready var detection: Sprite2D = %detection
 @onready var question: Sprite2D = %question
 
-enum states {IDLE, WANDER, CHASE, FINDING}
+enum states {IDLE, WANDER, CHASE, FINDING, IDLING}
 enum idle_states {IDLING, WALKING}
 
 var state : states = states.IDLE
@@ -151,6 +151,10 @@ func finding_player(_delta : float) -> void:
 		if (univeral_timer <= 0):
 			managing_direction_change(_delta)
 			
+func pause() -> void:
+	character_direction = Vector2.ZERO
+	velocity = character_direction * 0
+			
 func enum_matching(_delta : float) -> void:
 	if (target_found == false):
 		match state:
@@ -160,6 +164,8 @@ func enum_matching(_delta : float) -> void:
 				wandering(_delta)
 			states.FINDING:
 				finding_player(_delta)
+			states.IDLING:
+				pause()
 				
 	elif (target_found == true):
 		match state:
@@ -176,6 +182,11 @@ func _on_enemy_detection_body_exited(body: Node2D) -> void:
 	target_found = false
 	state = states.FINDING
 	last_direction_to_player = character_direction
+	
+func _on_touching_detection_body_entered(body: Node2D) -> void:
+	if (body.name == "player"):
+		print("colliding")
+		emit_signal("touched", velocity)
 
 func velocity_match() -> void:
 	velocity = character_direction * movement_speed

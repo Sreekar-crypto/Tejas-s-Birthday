@@ -193,6 +193,7 @@ size = Vector2(13, 15)
 
 [node name="player" type="CharacterBody2D"]
 script = ExtResource("1_2147m")
+knockback_force = 500.0
 
 [node name="shadow" type="Sprite2D" parent="."]
 position = Vector2(-1, -9)
