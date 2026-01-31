@@ -20,4 +20,5 @@ position = Vector2(93, 32)
 
 [node name="player" parent="." instance=ExtResource("1_fmj00")]
 
+[connection signal="hit" from="eye" to="player" method="_on_eye_hit"]
 [connection signal="touched" from="eye" to="player" method="_on_eye_touched"]

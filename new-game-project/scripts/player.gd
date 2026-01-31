@@ -8,15 +8,18 @@ class_name player
 @onready var camera_2d: camera2D = %Camera2D
 
 signal hit_stop
+signal player_hit
 
 var get_enemy_velocity : Vector2
 
 var player_direction : Vector2
 var knockback_direction : Vector2
 
-var in_knockback : bool= false
+var health : float = 100
 var knockback_time : float= 0.15
 var knockback_timer : float= 0.0
+
+var in_knockback : bool= false
 
 enum movement_direction {UP, DOWN, LEFT, RIGHT, NON}
 
@@ -50,12 +53,16 @@ func knockback(enemy_position: Vector2) -> void:
 			dir = Vector2.UP
 	knockback_direction = dir.normalized()
 	velocity = knockback_direction * knockback_force
+	
+func _on_eye_hit() -> void:
+	health -= 20
+	print(health)
 		
 func _on_eye_touched(enemy_position) -> void:
 	camera_2d.screen_shake(4, 0.25)
 	knockback(enemy_position)
 	await HitStopManager.hit_stop()
-
+	
 func animation_handler_player() -> void:
 	if player_direction != Vector2.ZERO:
 		if default_direction == movement_direction.UP:

@@ -1,9 +1,11 @@
-[gd_scene load_steps=27 format=3 uid="uid://be8qbmt0fe144"]
+[gd_scene load_steps=30 format=3 uid="uid://be8qbmt0fe144"]
 
 [ext_resource type="Script" uid="uid://c3ubxpp10k6x6" path="res://scripts/player.gd" id="1_2147m"]
 [ext_resource type="Texture2D" uid="uid://scsbaf7gqh7f" path="res://sprites/background/shadow_2.png" id="2_54rde"]
 [ext_resource type="Texture2D" uid="uid://dtkbq2dle2vfa" path="res://sprites/player character/SpriteSheet.png" id="2_h5uus"]
 [ext_resource type="Script" uid="uid://co6ub37ujgp7h" path="res://scripts/camera_2d.gd" id="3_h5uus"]
+[ext_resource type="Script" uid="uid://5ywey1uj7ip4" path="res://scripts/sword.gd" id="5_ksjmp"]
+[ext_resource type="Texture2D" uid="uid://co48e7h6x0mxd" path="res://sprites/misc/sword.png" id="6_2rlf8"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_54rde"]
 atlas = ExtResource("2_h5uus")
@@ -191,6 +193,9 @@ animations = [{
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jej6c"]
 size = Vector2(13, 15)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ksjmp"]
+size = Vector2(9, 29)
+
 [node name="player" type="CharacterBody2D"]
 process_mode = 3
 script = ExtResource("1_2147m")
@@ -217,5 +222,16 @@ unique_name_in_owner = true
 zoom = Vector2(2, 2)
 script = ExtResource("3_h5uus")
 player = NodePath("..")
+
+[node name="sword" type="Area2D" parent="."]
+script = ExtResource("5_ksjmp")
+
+[node name="Sprite2D" type="Sprite2D" parent="sword"]
+position = Vector2(0, -23)
+texture = ExtResource("6_2rlf8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="sword"]
+position = Vector2(-0.5, -28.5)
+shape = SubResource("RectangleShape2D_ksjmp")
 
 [connection signal="hit_stop" from="." to="Camera2D" method="_on_player_hit_stop"]

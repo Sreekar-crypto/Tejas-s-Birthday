@@ -351,7 +351,6 @@ radius = 11.045361
 
 [node name="eye" type="CharacterBody2D"]
 script = ExtResource("1_ycp1w")
-movement_speed = 130.0
 player = ExtResource("2_hq8dx")
 
 [node name="sprite" type="AnimatedSprite2D" parent="."]

@@ -6,6 +6,7 @@ class_name enemy_eye
 @export var player : PackedScene
 
 signal touched
+signal hit
 
 var health : float = 100.0
 
@@ -187,6 +188,7 @@ func _on_touching_detection_body_entered(body: Node2D) -> void:
 	if (body.name == "player"):
 		await HitStopManager.hit_stop()
 		emit_signal("touched", global_position)
+		emit_signal("hit")
 
 func velocity_match() -> void:
 	velocity = character_direction * movement_speed
