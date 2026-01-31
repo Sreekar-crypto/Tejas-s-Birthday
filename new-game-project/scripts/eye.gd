@@ -28,6 +28,7 @@ var finding_direction = [Vector2.UP, Vector2.DOWN, Vector2.RIGHT, Vector2.LEFT]
 
 var univeral_timer : float = 0
 var finding_direction_change_timer : float = 0
+
 var roll : int
 var steps : int = 0
 
@@ -189,6 +190,10 @@ func _on_touching_detection_body_entered(body: Node2D) -> void:
 		await HitStopManager.hit_stop()
 		emit_signal("touched", global_position)
 		emit_signal("hit")
+		
+func _on_player_hitting_enemy() -> void:
+	health -= 20.0
+	print("enemy ", health)
 
 func velocity_match() -> void:
 	velocity = character_direction * movement_speed

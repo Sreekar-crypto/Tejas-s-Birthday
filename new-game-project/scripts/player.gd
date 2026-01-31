@@ -8,7 +8,9 @@ class_name player
 @onready var camera_2d: camera2D = %Camera2D
 
 signal hit_stop
-signal player_hit
+signal attack_entered
+signal attack_exited
+signal hitting_enemy
 
 var get_enemy_velocity : Vector2
 
@@ -20,6 +22,7 @@ var knockback_time : float= 0.15
 var knockback_timer : float= 0.0
 
 var in_knockback : bool= false
+var attack_pressed_bool : bool = false
 
 enum movement_direction {UP, DOWN, LEFT, RIGHT, NON}
 
@@ -56,12 +59,25 @@ func knockback(enemy_position: Vector2) -> void:
 	
 func _on_eye_hit() -> void:
 	health -= 20
-	print(health)
+	print("player ", health)
+	
+func _on_sword_enemy_hit() -> void:
+	emit_signal("hitting_enemy")
 		
 func _on_eye_touched(enemy_position) -> void:
 	camera_2d.screen_shake(4, 0.25)
 	knockback(enemy_position)
 	await HitStopManager.hit_stop()
+	
+func attack_manager() -> void:
+	if (Input.is_action_just_pressed("enter_attack")):
+		attack_pressed_bool = !attack_pressed_bool
+		if (attack_pressed_bool):
+			print("entering attack")
+			emit_signal("attack_entered")
+		else:
+			print("exiting attack")
+			emit_signal("attack_exited")
 	
 func animation_handler_player() -> void:
 	if player_direction != Vector2.ZERO:
@@ -95,6 +111,7 @@ func _physics_process(delta: float) -> void:
 		if (knockback_timer <= 0):
 			in_knockback = false
 		return
+	attack_manager()
 	encode_direction()
 	velocity_calculator()
 	animation_handler_player()

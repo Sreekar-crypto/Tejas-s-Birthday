@@ -194,7 +194,7 @@ animations = [{
 size = Vector2(13, 15)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ksjmp"]
-size = Vector2(9, 29)
+size = Vector2(11, 33)
 
 [node name="player" type="CharacterBody2D"]
 process_mode = 3
@@ -223,15 +223,22 @@ zoom = Vector2(2, 2)
 script = ExtResource("3_h5uus")
 player = NodePath("..")
 
-[node name="sword" type="Area2D" parent="."]
+[node name="sword_pivoit" type="Node2D" parent="."]
+
+[node name="sword" type="Area2D" parent="sword_pivoit"]
 script = ExtResource("5_ksjmp")
 
-[node name="Sprite2D" type="Sprite2D" parent="sword"]
+[node name="sword_sprite" type="Sprite2D" parent="sword_pivoit/sword"]
+unique_name_in_owner = true
 position = Vector2(0, -23)
 texture = ExtResource("6_2rlf8")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="sword"]
-position = Vector2(-0.5, -28.5)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="sword_pivoit/sword"]
+position = Vector2(-0.5, -30.5)
 shape = SubResource("RectangleShape2D_ksjmp")
 
+[connection signal="attack_entered" from="." to="sword_pivoit/sword" method="_on_player_attack_entered"]
+[connection signal="attack_exited" from="." to="sword_pivoit/sword" method="_on_player_attack_exited"]
 [connection signal="hit_stop" from="." to="Camera2D" method="_on_player_hit_stop"]
+[connection signal="body_entered" from="sword_pivoit/sword" to="sword_pivoit/sword" method="_on_body_entered"]
+[connection signal="enemy_hit" from="sword_pivoit/sword" to="." method="_on_sword_enemy_hit"]

@@ -22,3 +22,4 @@ position = Vector2(93, 32)
 
 [connection signal="hit" from="eye" to="player" method="_on_eye_hit"]
 [connection signal="touched" from="eye" to="player" method="_on_eye_touched"]
+[connection signal="hitting_enemy" from="player" to="eye" method="_on_player_hitting_enemy"]
