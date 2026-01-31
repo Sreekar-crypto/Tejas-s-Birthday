@@ -11,11 +11,13 @@ signal hit_stop
 signal attack_entered
 signal attack_exited
 signal hitting_enemy
+signal not_hitting_enemy
 
 var get_enemy_velocity : Vector2
 
 var player_direction : Vector2
 var knockback_direction : Vector2
+var got_sword_direction : Vector2
 
 var health : float = 100
 var knockback_time : float= 0.15
@@ -66,13 +68,18 @@ func _on_eye_hit() -> void:
 	
 func _on_sword_enemy_hit() -> void:
 	count += 1
-	emit_signal("hitting_enemy", count)
+	emit_signal("hitting_enemy", got_sword_direction)
+	
+func _on_sword_not_enemy_hit() -> void:
+	emit_signal("not_hitting_enemy")
 
-		
 func _on_eye_touched(enemy_position) -> void:
 	camera_2d.screen_shake(4, 0.25)
 	knockback(enemy_position)
 	await HitStopManager.hit_stop()
+	
+func _on_sword_sword_direction(sword_direction) -> void:
+	got_sword_direction = sword_direction
 	
 func attack_manager() -> void:
 	if (Input.is_action_just_pressed("enter_attack")):

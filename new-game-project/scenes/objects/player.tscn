@@ -194,7 +194,7 @@ animations = [{
 size = Vector2(13, 15)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ksjmp"]
-size = Vector2(11, 33)
+size = Vector2(11, 36)
 
 [node name="player" type="CharacterBody2D"]
 process_mode = 3
@@ -234,11 +234,14 @@ position = Vector2(0, -23)
 texture = ExtResource("6_2rlf8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="sword_pivoit/sword"]
-position = Vector2(-0.5, -30.5)
+position = Vector2(-0.5, -32)
 shape = SubResource("RectangleShape2D_ksjmp")
 
 [connection signal="attack_entered" from="." to="sword_pivoit/sword" method="_on_player_attack_entered"]
 [connection signal="attack_exited" from="." to="sword_pivoit/sword" method="_on_player_attack_exited"]
 [connection signal="hit_stop" from="." to="Camera2D" method="_on_player_hit_stop"]
 [connection signal="body_entered" from="sword_pivoit/sword" to="sword_pivoit/sword" method="_on_body_entered"]
+[connection signal="body_exited" from="sword_pivoit/sword" to="sword_pivoit/sword" method="_on_body_exited"]
 [connection signal="enemy_hit" from="sword_pivoit/sword" to="." method="_on_sword_enemy_hit"]
+[connection signal="not_enemy_hit" from="sword_pivoit/sword" to="." method="_on_sword_not_enemy_hit"]
+[connection signal="sword_direction" from="sword_pivoit/sword" to="." method="_on_sword_sword_direction"]
